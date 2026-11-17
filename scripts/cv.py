@@ -591,7 +591,7 @@ def cmd_render() -> None:
     host = urlparse(url).hostname or url
     og_w, og_h = make_og_image(person, host, SITE / "og.jpg")
     # Link previews show site name, title and description stacked: keep each one different.
-    preview_desc = person.get("og_description") or person["job_title"]
+    preview_desc = person.get("og_description") or person.get("description") or person["job_title"]
     verify_names = {"google": "google-site-verification", "yandex": "yandex-verification", "bing": "msvalidate.01"}
     verification = "".join(
         f'<meta name="{verify_names.get(k, k)}" content="{esc(v)}">\n'
