@@ -520,7 +520,7 @@ FONTS = ROOT / "assets" / "fonts"
 
 
 def make_og_image(person: dict, host: str, out: Path) -> tuple[int, int]:
-    """1200x630 link-preview card (Telegram, Slack, LinkedIn, X...): photo + name + role."""
+    """1200x630 JPEG link-preview card (Telegram, Slack, LinkedIn, X...): photo + name + role."""
     from PIL import Image, ImageDraw, ImageFont, ImageOps
 
     W, H, PAD, PHOTO_W = 1200, 630, 72, 430
@@ -563,7 +563,7 @@ def make_og_image(person: dict, host: str, out: Path) -> tuple[int, int]:
         d.text((PAD, y), line, font=f_tag, fill=muted)
         y += 38
     d.text((PAD, H - PAD - 34), host, font=font("Lato-bold", 32), fill=accent)
-    img.save(out, "PNG", optimize=True)
+    img.save(out, "JPEG", quality=88, optimize=True, progressive=True)
     return W, H
 
 
@@ -588,7 +588,7 @@ def cmd_render() -> None:
             pw, ph = im.size
 
     title = f"{person['name']} — {person['job_title']}"
-    og_w, og_h = make_og_image(person, urlparse(url).hostname or url, SITE / "og.png")
+    og_w, og_h = make_og_image(person, urlparse(url).hostname or url, SITE / "og.jpg")
     verify_names = {"google": "google-site-verification", "yandex": "yandex-verification", "bing": "msvalidate.01"}
     verification = "".join(
         f'<meta name="{verify_names.get(k, k)}" content="{esc(v)}">\n'
@@ -653,11 +653,11 @@ def cmd_render() -> None:
         )
 
     og_image = (
-        f'<meta property="og:image" content="{url}/og.png">\n'
-        f'<meta property="og:image:type" content="image/png">\n'
+        f'<meta property="og:image" content="{url}/og.jpg">\n'
+        f'<meta property="og:image:type" content="image/jpeg">\n'
         f'<meta property="og:image:width" content="{og_w}">\n<meta property="og:image:height" content="{og_h}">\n'
         f'<meta property="og:image:alt" content="{esc(title)}">\n'
-        f'<meta name="twitter:image" content="{url}/og.png">\n'
+        f'<meta name="twitter:image" content="{url}/og.jpg">\n'
     )
     photo_tag = (
         f'<img class="photo" src="photo.jpg" width="{pw}" height="{ph}" alt="{esc(person["name"])}" fetchpriority="high">'

@@ -20,7 +20,7 @@ job_title = "Forward Deployed Software Engineer · AI · Full-stack"
 # ~150 characters: shown under the link in Google / Yandex results.
 description = "Ruslan Belkov — Forward Deployed Software Engineer (AI, full-stack): Python, TypeScript, RAG and LLM systems, computer vision, robotics."
 email = "ruslan.belckov@yandex.ru"
-# Second line of the link-preview card (og.png).
+# Second line of the link-preview card (og.jpg).
 og_tagline = "Python · TypeScript · RAG · AI Agents · Computer Vision · Robotics"
 alumni_of = ["Innopolis University"]
 knows_about = [
