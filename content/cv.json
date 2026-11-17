@@ -865,6 +865,12 @@
       "is_summary": false
     }
   ],
+  "photo_crop": [
+    0.0,
+    0.0842,
+    1.0,
+    0.9158
+  ],
   "photo_sha256": "4f607ec01421957e3fe9ebc4bdb0432f107064f6cc6164d605cb83310a8a6b39",
   "updated": "2026-11-17"
 }

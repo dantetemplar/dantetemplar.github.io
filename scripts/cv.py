@@ -202,7 +202,30 @@ def parse_docs_export(html_path: Path) -> tuple[dict, Path | None]:
 
     img = soup.body.find("img")
     photo = (html_path.parent / img["src"]) if img and img.get("src") else None
-    return {"sections": sections}, (photo if photo and photo.is_file() else None)
+    content = {"sections": sections}
+    if img is not None:
+        crop = photo_crop(img)
+        if crop:
+            content["photo_crop"] = crop
+    return content, (photo if photo and photo.is_file() else None)
+
+
+def photo_crop(img) -> list[float] | None:
+    """Crop box (fractions l, t, r, b) the Doc applies to the photo via an overflow:hidden frame."""
+    def px(style: str, prop: str) -> float | None:
+        m = re.search(rf"(?:^|;)\s*{prop}:\s*(-?[\d.]+)px", style or "")
+        return float(m.group(1)) if m else None
+
+    frame = img.parent.get("style", "") if img.parent else ""
+    st = img.get("style", "")
+    iw, ih = px(st, "width"), px(st, "height")
+    fw, fh = px(frame, "width"), px(frame, "height")
+    if not (iw and ih and fw and fh) or "overflow: hidden" not in frame:
+        return None
+    ml, mt = -(px(st, "margin-left") or 0.0), -(px(st, "margin-top") or 0.0)
+    box = [ml / iw, mt / ih, (ml + fw) / iw, (mt + fh) / ih]
+    box = [round(min(max(v, 0.0), 1.0), 4) + 0.0 for v in box]
+    return None if box == [0.0, 0.0, 1.0, 1.0] else box
 
 
 def cmd_parse() -> None:
@@ -217,14 +240,20 @@ def cmd_parse() -> None:
     if photo_src:
         digest = hashlib.sha256(photo_src.read_bytes()).hexdigest()
         content["photo_sha256"] = digest
-        if old.get("photo_sha256") != digest or not PHOTO.exists():
+        crop = content.get("photo_crop")
+        if old.get("photo_sha256") != digest or old.get("photo_crop") != crop or not PHOTO.exists():
             from PIL import Image, ImageOps
 
             im = ImageOps.exif_transpose(Image.open(photo_src)).convert("RGB")
-            im.thumbnail((600, 800))
+            if crop:
+                w, h = im.size
+                im = im.crop((round(crop[0] * w), round(crop[1] * h), round(crop[2] * w), round(crop[3] * h)))
+            im.thumbnail((640, 800))
             im.save(PHOTO, "JPEG", quality=85, optimize=True, progressive=True)
     elif "photo_sha256" in old:
         content["photo_sha256"] = old["photo_sha256"]
+        if "photo_crop" in old:
+            content["photo_crop"] = old["photo_crop"]
 
     comparable = lambda d: {k: v for k, v in d.items() if k != "updated"}
     if comparable(old) == comparable(content) and old.get("updated"):
@@ -239,23 +268,24 @@ def cmd_parse() -> None:
 
 CSS = r"""
 :root{--bg:#fff;--ink:#1d1d1f;--body:#2b2b2e;--muted:#5f6368;--line:#e6e6e9;--soft:#f5f5f7;
---accent:#d9480f;--accent-soft:#fdeee8;--win:#137333;--win-soft:#e6f4ea;--fin:#8a5a00;--fin-soft:#fef3d8;color-scheme:light}
+--accent:#1155cc;--accent-soft:#e8f0fe;--win:#137333;--win-soft:#e6f4ea;--fin:#8a5a00;--fin-soft:#fef3d8;color-scheme:light}
 @media (prefers-color-scheme:dark){:root{--bg:#121214;--ink:#f2f2f4;--body:#d6d6da;--muted:#a1a1aa;--line:#2a2a2e;
---soft:#1c1c20;--accent:#ff8a5c;--accent-soft:#3a2219;--win:#7fd99a;--win-soft:#16301f;--fin:#f0c76b;--fin-soft:#33290f;color-scheme:dark}}
+--soft:#1c1c20;--accent:#8ab4f8;--accent-soft:#1b2a44;--win:#7fd99a;--win-soft:#16301f;--fin:#f0c76b;--fin-soft:#33290f;color-scheme:dark}}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Lato",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 .cv{max-width:880px;margin:0 auto;padding:40px 20px 56px}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
-.hero{display:grid;grid-template-columns:190px 1fr;gap:32px;align-items:start}
-.hero img{width:190px;height:253px;object-fit:cover;border-radius:16px;display:block;background:var(--soft)}
-h1{font:800 38px/1.1 "Raleway",system-ui,sans-serif;margin:2px 0 8px;letter-spacing:-.01em}
-.role{font:700 18px/1.35 "Raleway",system-ui,sans-serif;color:var(--accent);margin:0 0 16px}
-.contacts{list-style:none;display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:0 0 18px}
-.contacts a{display:inline-block;color:var(--ink);background:var(--soft);border:1px solid var(--line);padding:6px 12px;border-radius:999px;font-size:14px}
-.contacts a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+.hero{text-align:center;margin-bottom:8px}
+h1{font:800 34px/1.15 "Raleway",system-ui,sans-serif;margin:0 0 6px;letter-spacing:.03em;text-transform:uppercase}
+.role{font-size:17px;color:var(--ink);margin:0 0 10px}
+.contacts{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:4px 0;padding:0;margin:0;font-size:15px}
+.contacts li+li::before{content:"|";color:var(--muted);margin:0 10px}
+.contacts a{text-decoration:underline;text-underline-offset:2px}
+.summary .photo{float:right;width:260px;height:auto;margin:4px 0 12px 24px;border-radius:6px;background:var(--soft)}
 .summary p{margin:0 0 10px;color:var(--body)}
+.summary::after{content:"";display:block;clear:both}
 nav{position:sticky;top:0;z-index:1;background:var(--bg);display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 4px;padding:12px 0;
 border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 nav a{font:700 13px/1 "Raleway",system-ui,sans-serif;color:var(--ink);padding:8px 12px;border-radius:999px;background:var(--soft)}
@@ -278,14 +308,15 @@ h3{font:700 17px/1.35 "Raleway",system-ui,sans-serif;margin:0;flex:1 1 380px}
 .tech{list-style:none;display:flex;flex-wrap:wrap;gap:6px;padding:0;margin:4px 0 6px}
 .tech li{font-size:12.5px;line-height:1;padding:6px 9px;border-radius:6px;background:var(--soft);color:var(--muted);border:1px solid var(--line)}
 footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px;display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
-@media (max-width:640px){.cv{padding:24px 16px 40px}.hero{grid-template-columns:1fr;gap:18px}
-.hero img{width:140px;height:187px}h1{font-size:30px}.date,.badge{white-space:normal}nav{margin-top:20px}}
+@media (max-width:640px){.cv{padding:24px 16px 40px}.summary .photo{width:42%;margin-left:14px}
+.contacts{flex-direction:column;align-items:center}.contacts li+li::before{content:none}h1{font-size:28px}.date,.badge{white-space:normal}nav{margin-top:20px}}
+@media (max-width:420px){.summary .photo{float:none;display:block;width:200px;margin:4px auto 14px}}
 @media print{nav{display:none}.cv{padding:0}body{font-size:12px}.item{break-inside:avoid}a::after{content:none!important}}
 """
 
 FAVICON = (
     "data:image/svg+xml,"
-    "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23d9480f'/%3E"
+    "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231155cc'/%3E"
     "%3Ctext x='32' y='42' font-family='Arial,sans-serif' font-size='28' font-weight='700' fill='white' text-anchor='middle'%3ERB%3C/text%3E%3C/svg%3E"
 )
 
@@ -415,7 +446,7 @@ def cmd_render() -> None:
         if has_photo else ""
     )
     photo_tag = (
-        f'<img src="photo.jpg" width="{pw}" height="{ph}" alt="{esc(person["name"])}" fetchpriority="high">'
+        f'<img class="photo" src="photo.jpg" width="{pw}" height="{ph}" alt="{esc(person["name"])}" fetchpriority="high">'
         if has_photo else ""
     )
     updated_human = dt.date.fromisoformat(updated).strftime("%B %Y")
@@ -430,7 +461,7 @@ def cmd_render() -> None:
 <meta name="description" content="{esc(description)}">
 <meta name="author" content="{esc(person['name'])}">
 {verification}<link rel="canonical" href="{url}/">
-<meta name="theme-color" content="#d9480f">
+<meta name="theme-color" content="#1155cc">
 <link rel="icon" href="{FAVICON}">
 <meta property="og:type" content="profile">
 <meta property="og:url" content="{url}/">
@@ -451,16 +482,15 @@ def cmd_render() -> None:
 <body>
 <main class="cv">
 <header class="hero">
-{photo_tag}
-<div>
 <h1>{esc(person['name'])}</h1>
 <p class="role">{esc(person['job_title'])}</p>
 <ul class="contacts">{contacts_html}</ul>
-<div class="summary">
-{render_blocks(summary['intro']) if summary else ''}
-</div>
-</div>
 </header>
+<section id="{esc(summary['id'] if summary else 'summary')}" class="summary" aria-labelledby="summary-h">
+<h2 id="summary-h">{esc(summary['title'] if summary else 'Summary')}</h2>
+{photo_tag}
+{render_blocks(summary['intro']) if summary else ''}
+</section>
 <nav aria-label="Sections">{nav_html}</nav>
 {chr(10).join(sections_html)}
 <footer><span>© {dt.date.today().year} {esc(person['name'])}{' · ' + esc(alt_names) if alt_names else ''}</span>
