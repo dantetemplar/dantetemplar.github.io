@@ -20,6 +20,8 @@ job_title = "Forward Deployed Software Engineer · AI · Full-stack"
 # ~150 characters: shown under the link in Google / Yandex results.
 description = "Ruslan Belkov — Forward Deployed Software Engineer (AI, full-stack): Python, TypeScript, RAG and LLM systems, computer vision, robotics."
 email = "ruslan.belckov@yandex.ru"
+# Text under the title in link previews (Telegram, Slack, LinkedIn...). Keep it different from the card image.
+og_description = "Builds production AI end-to-end: RAG assistants, AI agents, computer vision. 6+ years in Python & TypeScript. Master of Sports in programming."
 # Second line of the link-preview card (og.jpg).
 og_tagline = "Python · TypeScript · RAG · AI Agents · Computer Vision · Robotics"
 alumni_of = ["Innopolis University"]
