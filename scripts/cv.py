@@ -588,7 +588,12 @@ def cmd_render() -> None:
             pw, ph = im.size
 
     title = f"{person['name']} — {person['job_title']}"
-    og_w, og_h = make_og_image(person, urlparse(url).hostname or url, SITE / "og.jpg")
+    host = urlparse(url).hostname or url
+    og_w, og_h = make_og_image(person, host, SITE / "og.jpg")
+    # Link previews show site name, title and description stacked: keep each one different.
+    preview_desc = person["job_title"]
+    if person.get("og_tagline"):
+        preview_desc += ". " + person["og_tagline"].replace(" · ", ", ")
     verify_names = {"google": "google-site-verification", "yandex": "yandex-verification", "bing": "msvalidate.01"}
     verification = "".join(
         f'<meta name="{verify_names.get(k, k)}" content="{esc(v)}">\n'
@@ -654,6 +659,7 @@ def cmd_render() -> None:
 
     og_image = (
         f'<meta property="og:image" content="{url}/og.jpg">\n'
+        f'<meta property="og:image:secure_url" content="{url}/og.jpg">\n'
         f'<meta property="og:image:type" content="image/jpeg">\n'
         f'<meta property="og:image:width" content="{og_w}">\n<meta property="og:image:height" content="{og_h}">\n'
         f'<meta property="og:image:alt" content="{esc(title)}">\n'
@@ -679,17 +685,15 @@ def cmd_render() -> None:
 {verification}<link rel="canonical" href="{url}/">
 <meta name="theme-color" content="#1155cc">
 <link rel="icon" href="{FAVICON}">
-<meta property="og:type" content="profile">
+<meta property="og:type" content="website">
 <meta property="og:url" content="{url}/">
-<meta property="og:title" content="{esc(title)}">
-<meta property="og:description" content="{esc(description)}">
-<meta property="og:site_name" content="{esc(person['name'])}">
-<meta property="profile:first_name" content="{esc(person['name'].split()[0])}">
-<meta property="profile:last_name" content="{esc(person['name'].split()[-1])}">
+<meta property="og:site_name" content="{esc(host)}">
+<meta property="og:title" content="{esc(person['name'])}">
+<meta property="og:description" content="{esc(preview_desc)}">
 <meta property="og:locale" content="en_US">
 {og_image}<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{esc(title)}">
-<meta name="twitter:description" content="{esc(description)}">
+<meta name="twitter:title" content="{esc(person['name'])}">
+<meta name="twitter:description" content="{esc(preview_desc)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&family=Raleway:wght@700;800&display=swap" rel="stylesheet">
