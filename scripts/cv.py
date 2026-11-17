@@ -87,6 +87,36 @@ def parse_docs_export(html_path: Path) -> tuple[dict, Path | None]:
     bold_cls = set(re.findall(r"\.(c\d+)\{[^}]*font-weight:700", css))
     ital_cls = set(re.findall(r"\.(c\d+)\{[^}]*font-style:italic", css))
 
+    # Docs exports per-paragraph spacing (space before/after, line spacing, alignment) as CSS
+    # classes; collect them so the site reuses the spacing set manually in the Doc.
+    rules: dict[str, dict] = {}
+    for sel, decl in re.findall(r"([^{}]+)\{([^}]*)\}", css):
+        props = dict((k.strip(), v.strip()) for k, v in re.findall(r"([a-z-]+):([^;]+)", decl))
+        for one in sel.split(","):
+            one = one.strip()
+            if re.fullmatch(r"\.c\d+|h[1-6]|p", one):
+                rules.setdefault(one, {}).update(props)
+
+    def pt(v) -> float:
+        m = re.match(r"(-?[\d.]+)pt", v or "")
+        return float(m.group(1)) if m else 0.0
+
+    def doc_style(el) -> dict:
+        props = dict(rules.get(el.name, {}))
+        for c in el.get("class", []):
+            props.update(rules.get("." + c, {}))
+        size = pt(props.get("font-size")) or pt(rules.get("p", {}).get("font-size")) or 11.0
+        st = {}
+        if pt(props.get("padding-top")):
+            st["pt"] = round(pt(props["padding-top"]) / size, 3)  # em of the element's font size
+        if pt(props.get("padding-bottom")):
+            st["pb"] = round(pt(props["padding-bottom"]) / size, 3)
+        if re.fullmatch(r"[\d.]+", props.get("line-height", "")):
+            st["lh"] = float(props["line-height"])
+        if props.get("text-align") in ("justify", "center", "right"):
+            st["align"] = props["text-align"]
+        return st
+
     def real_url(href: str) -> str:
         u = urlparse(href)
         if u.netloc.endswith("google.com") and u.path == "/url":
@@ -142,20 +172,27 @@ def parse_docs_export(html_path: Path) -> tuple[dict, Path | None]:
         if tech_m:
             rest = rest.replace(tech_m.group(0), "")
         target = blocks()
+        st = doc_style(p)
+        n_before = len(target)
         if links and not rest.strip():
-            target.append({"type": "links", "links": [
+            target.append({"type": "links", "style": st, "links": [
                 {"label": tidy(a.get_text()), "url": real_url(a["href"])} for a in links if tidy(a.get_text())
             ]})
         elif as_list_item:
             if target and target[-1]["type"] == "list":
                 target[-1]["items"].append(tidy(inline(p)))
             else:
-                target.append({"type": "list", "items": [tidy(inline(p))]})
+                target.append({"type": "list", "style": st, "items": [tidy(inline(p))]})
         elif not tech_m:
-            target.append({"type": "p", "html": tidy(inline(p))})
+            target.append({"type": "p", "style": st, "html": tidy(inline(p))})
         if tech_m:
             tags = [t.strip() for t in re.split(r"[,;]", tech_m.group(1)) if t.strip()]
-            target.append({"type": "tech", "tags": tags})
+            if len(target) > n_before:  # same Doc paragraph split in two: space before goes to the first part
+                tst = {k: v for k, v in st.items() if k != "pt"}
+                target[-1]["style"] = {k: v for k, v in st.items() if k != "pb"}
+            else:
+                tst = st
+            target.append({"type": "tech", "style": tst, "tags": tags})
 
     def add_heading(h):
         nonlocal item
@@ -163,7 +200,7 @@ def parse_docs_export(html_path: Path) -> tuple[dict, Path | None]:
         t = text_of(h)
         # A heading that is only a link, right after an item with no body = that item's link.
         if a and t == tidy(a.get_text()) and item and not item["blocks"] and item.get("meta"):
-            item["blocks"].append({"type": "links", "links": [{"label": t, "url": real_url(a["href"])}]})
+            item["blocks"].append({"type": "links", "style": doc_style(h), "links": [{"label": t, "url": real_url(a["href"])}]})
             return
         title_html, meta, kind = tidy(inline(h, allow_bold=False)), None, None
         if " | " in t:
@@ -173,14 +210,14 @@ def parse_docs_export(html_path: Path) -> tuple[dict, Path | None]:
             m = re.match(r"^(.*?)\s*[—–]\s*((?:19|20)\d\d\b.*)$", t)
             if m:
                 title_html, meta, kind = html.escape(m.group(1).strip(), quote=False), m.group(2).strip(), "result"
-        item = {"title_html": title_html, "meta": meta, "meta_kind": kind, "blocks": []}
+        item = {"title_html": title_html, "meta": meta, "meta_kind": kind, "style": doc_style(h), "blocks": []}
         sec["items"].append(item)
 
     for el in soup.body.descendants:
         if not isinstance(el, Tag):
             continue
         if el.name == "h1" and text_of(el):
-            sec = {"title": text_of(el), "intro": [], "items": []}
+            sec = {"title": text_of(el), "style": doc_style(el), "intro": [], "items": []}
             sections.append(sec)
             item = None
         elif sec is None:
@@ -277,14 +314,15 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Lato",system
 .cv{max-width:880px;margin:0 auto;padding:40px 20px 56px}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
-.hero{text-align:center;margin-bottom:8px}
+.hero{text-align:center;margin-bottom:22px}
 h1{font:800 34px/1.15 "Raleway",system-ui,sans-serif;margin:0 0 6px;letter-spacing:.03em;text-transform:uppercase}
-.role{font-size:17px;color:var(--ink);margin:0 0 10px}
+.hero .role{font-size:17px;color:var(--ink);margin:0 0 10px;text-align:center;hyphens:none;line-height:1.35}
 .contacts{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:4px 0;padding:0;margin:0;font-size:15px}
 .contacts li+li::before{content:"|";color:var(--muted);margin:0 10px}
 .contacts a{text-decoration:underline;text-underline-offset:2px}
+.contacts .short{display:none}
+.nw{white-space:nowrap}
 .summary .photo{float:right;width:260px;height:auto;margin:4px 0 12px 24px;border-radius:6px;background:var(--soft)}
-.summary p{margin:0 0 10px;color:var(--body)}
 .summary::after{content:"";display:block;clear:both}
 .layout{display:grid;grid-template-columns:minmax(0,1fr)}
 .sidebar{display:none}
@@ -297,26 +335,29 @@ h1{font:800 34px/1.15 "Raleway",system-ui,sans-serif;margin:0 0 6px;letter-spaci
 font:700 14px/1.3 "Raleway",system-ui,sans-serif}
 .sidebar a:hover{color:var(--ink);text-decoration:none}
 .sidebar a.active{color:var(--accent);border-left-color:var(--accent)}
-section{padding-top:24px;scroll-margin-top:12px}
-h2{font:800 23px/1.2 "Raleway",system-ui,sans-serif;margin:0 0 6px;display:flex;align-items:center;gap:10px}
-h2::before{content:"";width:6px;height:23px;border-radius:3px;background:var(--accent)}
-.item{padding:16px 0;border-bottom:1px solid var(--line)}
-.item:last-child{border-bottom:0}
-.item header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 14px;margin-bottom:6px}
-h3{font:700 17px/1.35 "Raleway",system-ui,sans-serif;margin:0;flex:1 1 380px}
+section{scroll-margin-top:12px}
+h2{font:800 22px/1.2 "Raleway",system-ui,sans-serif;margin:0;padding-bottom:.15em;display:flex;align-items:center;gap:10px}
+h2::before{content:"";width:5px;height:.95em;border-radius:3px;background:var(--accent)}
+section+section h2,.summary+section h2{margin-top:.6em}
+.item header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 14px}
+h3{font:700 17px/1.2 "Raleway",system-ui,sans-serif;margin:0;flex:1 1 380px}
 .date{color:var(--muted);font-size:14px;white-space:nowrap}
 .badge{font:700 12.5px/1 "Lato",sans-serif;padding:6px 10px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
 .badge.win{background:var(--win-soft);color:var(--win)}
 .badge.fin{background:var(--fin-soft);color:var(--fin)}
-.item p{margin:0 0 8px;color:var(--body)}
-.item ul.bullets{margin:0 0 8px;padding-left:20px;color:var(--body)}
-.links{display:flex;flex-wrap:wrap;gap:6px 16px;margin:2px 0 8px;font-size:15px}
+.cv p{margin:0;color:var(--body);line-height:1.2;text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.item ul.bullets{margin:0;padding-left:20px;color:var(--body);text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.links{display:flex;flex-wrap:wrap;gap:2px 16px;margin:0;font-size:15px;line-height:1.3}
 .links a::after{content:" ↗";font-size:.85em}
-.tech{list-style:none;display:flex;flex-wrap:wrap;gap:6px;padding:0;margin:4px 0 6px}
+.tech{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:0;padding-left:0;margin-top:4px}
 .tech li{font-size:12.5px;line-height:1;padding:6px 9px;border-radius:6px;background:var(--soft);color:var(--muted);border:1px solid var(--line)}
 footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px;display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
 @media (max-width:640px){.cv{padding:24px 16px 40px}.summary .photo{width:42%;margin-left:14px}
-.contacts{flex-direction:column;align-items:center}.contacts li+li::before{content:none}h1{font-size:28px}.date,.badge{white-space:normal}}
+h1{font-size:27px}.hero .role{font-size:15.5px;line-height:1.35;margin-bottom:12px}
+.contacts{gap:6px;font-size:13.5px;flex-wrap:nowrap}.contacts li+li::before{content:none}
+.contacts .full{display:none}.contacts .short{display:inline}
+.contacts a{display:inline-block;white-space:nowrap;text-decoration:none;padding:5px 9px;border:1px solid var(--line);border-radius:999px;background:var(--soft)}.date,.badge{white-space:normal}}
+@media (max-width:389px){.contacts{display:grid;grid-template-columns:repeat(2,auto);justify-content:center}}
 @media (max-width:420px){.summary .photo{float:none;display:block;width:200px;margin:4px auto 14px}}
 @media print{.sidebar{display:none}.cv{padding:0}body{font-size:12px}.item{break-inside:avoid}a::after{content:none!important}}
 """
@@ -337,19 +378,39 @@ def external(html_str: str) -> str:
     return re.sub(r'<a href="(https?://[^"]+)">', r'<a href="\1" target="_blank" rel="noopener">', html_str)
 
 
+# Google Docs "single" line spacing is the font's natural line height (~1.2 for Lato/Raleway).
+DOC_LINE = 1.2
+
+
+def doc_css(st: dict | None, text=True) -> str:
+    """Inline style reproducing the Doc's per-paragraph spacing."""
+    st = st or {}
+    out = []
+    if st.get("pt"):
+        out.append(f"padding-top:{st['pt']:g}em")
+    if st.get("pb"):
+        out.append(f"padding-bottom:{st['pb']:g}em")
+    if st.get("lh"):
+        out.append(f"line-height:{round(st['lh'] * DOC_LINE, 3):g}")
+    if text and st.get("align") in ("center", "right"):  # body text is justified by default
+        out.append(f"text-align:{st['align']}")
+    return f' style="{";".join(out)}"' if out else ""
+
+
 def render_blocks(blocks: list) -> str:
     out = []
     for b in blocks:
+        sty = doc_css(b.get("style"), text=b["type"] in ("p", "list"))
         if b["type"] == "p":
-            out.append(f"<p>{external(b['html'])}</p>")
+            out.append(f"<p{sty}>{external(b['html'])}</p>")
         elif b["type"] == "list":
-            out.append('<ul class="bullets">' + "".join(f"<li>{external(i)}</li>" for i in b["items"]) + "</ul>")
+            out.append(f'<ul class="bullets"{sty}>' + "".join(f"<li>{external(i)}</li>" for i in b["items"]) + "</ul>")
         elif b["type"] == "links":
-            out.append('<div class="links">' + "".join(
+            out.append(f'<div class="links"{sty}>' + "".join(
                 f'<a href="{esc(l["url"])}" target="_blank" rel="noopener">{esc(l["label"])}</a>' for l in b["links"]
             ) + "</div>")
         elif b["type"] == "tech":
-            out.append('<ul class="tech" aria-label="Tech stack">' + "".join(f"<li>{esc(t)}</li>" for t in b["tags"]) + "</ul>")
+            out.append(f'<ul class="tech" aria-label="Tech stack"{sty}>' + "".join(f"<li>{esc(t)}</li>" for t in b["tags"]) + "</ul>")
     return "\n".join(out)
 
 
@@ -429,7 +490,9 @@ def cmd_render() -> None:
     contacts_html = "".join(
         f'<li><a href="{esc(c["url"])}"'
         + ("" if c["url"].startswith("mailto:") else ' target="_blank" rel="noopener me"')
-        + f'>{esc(c.get("icon", ""))} {esc(c["label"])}</a></li>'
+        + f'>{esc(c.get("icon", ""))} <span class="full">{esc(c["label"])}</span>'
+        + (f'<span class="short">{esc(c["short"])}</span>' if c.get("short") else "")
+        + "</a></li>"
         for c in contacts
     )
     nav_html = "".join(
@@ -441,12 +504,13 @@ def cmd_render() -> None:
         items = [render_blocks(s["intro"])] if s["intro"] else []
         for it in s["items"]:
             items.append(
-                f'<article class="item"><header><h3>{external(it["title_html"])}</h3>{meta_html(it)}</header>\n'
+                f'<article class="item"><header><h3{doc_css(it.get("style"), text=False)}>{external(it["title_html"])}</h3>'
+                f'{meta_html(it)}</header>\n'
                 f'{render_blocks(it["blocks"])}\n</article>'
             )
         sections_html.append(
             f'<section id="{esc(s["id"])}" aria-labelledby="{esc(s["id"])}-h">'
-            f'<h2 id="{esc(s["id"])}-h">{esc(s["title"])}</h2>\n' + "\n".join(items) + "</section>"
+            f'<h2 id="{esc(s["id"])}-h"{doc_css(s.get("style"), text=False)}>{esc(s["title"])}</h2>\n' + "\n".join(items) + "</section>"
         )
 
     og_image = (
@@ -459,6 +523,8 @@ def cmd_render() -> None:
         f'<img class="photo" src="photo.jpg" width="{pw}" height="{ph}" alt="{esc(person["name"])}" fetchpriority="high">'
         if has_photo else ""
     )
+    # keep "Full-stack" etc. in one piece; wrap only between the " · " parts
+    role_html = " · ".join(f'<span class="nw">{esc(part)}</span>' for part in person["job_title"].split(" · "))
     updated_human = dt.date.fromisoformat(updated).strftime("%B %Y")
     alt_names = " · ".join(person.get("alternate_names", [])[:1])
 
@@ -495,11 +561,11 @@ def cmd_render() -> None:
 <main class="cv">
 <header class="hero">
 <h1>{esc(person['name'])}</h1>
-<p class="role">{esc(person['job_title'])}</p>
+<p class="role">{role_html}</p>
 <ul class="contacts">{contacts_html}</ul>
 </header>
 <section id="{esc(summary['id'] if summary else 'summary')}" class="summary" aria-labelledby="summary-h">
-<h2 id="summary-h">{esc(summary['title'] if summary else 'Summary')}</h2>
+<h2 id="summary-h"{doc_css(summary.get("style") if summary else None, text=False)}>{esc(summary['title'] if summary else 'Summary')}</h2>
 {photo_tag}
 {render_blocks(summary['intro']) if summary else ''}
 </section>

@@ -30,18 +30,22 @@ knows_about = [
 icon = "💬"
 label = "t.me/dantetemplar"
 url = "https://t.me/dantetemplar"
+short = "Telegram"  # label on phones
 
 [[contacts]]
 icon = "👾"
 label = "github.com/dantetemplar"
 url = "https://github.com/dantetemplar"
+short = "GitHub"  # label on phones
 
 [[contacts]]
 icon = "📧"
 label = "ruslan.belckov@yandex.ru"
 url = "mailto:ruslan.belckov@yandex.ru"
+short = "Email"  # label on phones
 
 [[contacts]]
 icon = "👤"
 label = "linkedin.com/in/dantetemplar"
 url = "https://www.linkedin.com/in/dantetemplar"
+short = "LinkedIn"  # label on phones
