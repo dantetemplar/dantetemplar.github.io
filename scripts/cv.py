@@ -286,11 +286,18 @@ h1{font:800 34px/1.15 "Raleway",system-ui,sans-serif;margin:0 0 6px;letter-spaci
 .summary .photo{float:right;width:260px;height:auto;margin:4px 0 12px 24px;border-radius:6px;background:var(--soft)}
 .summary p{margin:0 0 10px;color:var(--body)}
 .summary::after{content:"";display:block;clear:both}
-nav{position:sticky;top:0;z-index:1;background:var(--bg);display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 4px;padding:12px 0;
-border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-nav a{font:700 13px/1 "Raleway",system-ui,sans-serif;color:var(--ink);padding:8px 12px;border-radius:999px;background:var(--soft)}
-nav a:hover{background:var(--accent-soft);color:var(--accent);text-decoration:none}
-section{padding-top:24px;scroll-margin-top:64px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr)}
+.sidebar{display:none}
+@media (min-width:960px){.layout{grid-template-columns:190px minmax(0,880px);justify-content:center;column-gap:8px}
+.sidebar{display:block}}
+@media (min-width:1300px){.layout{grid-template-columns:1fr minmax(0,880px) 1fr;column-gap:0}.sidebar{justify-self:end;width:200px}}
+.sidebar nav{position:sticky;top:0;padding:44px 0 24px 20px;max-height:100vh;overflow-y:auto}
+.sidebar ul{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+.sidebar a{display:block;margin-left:-2px;padding:7px 14px;border-left:2px solid transparent;color:var(--muted);
+font:700 14px/1.3 "Raleway",system-ui,sans-serif}
+.sidebar a:hover{color:var(--ink);text-decoration:none}
+.sidebar a.active{color:var(--accent);border-left-color:var(--accent)}
+section{padding-top:24px;scroll-margin-top:12px}
 h2{font:800 23px/1.2 "Raleway",system-ui,sans-serif;margin:0 0 6px;display:flex;align-items:center;gap:10px}
 h2::before{content:"";width:6px;height:23px;border-radius:3px;background:var(--accent)}
 .item{padding:16px 0;border-bottom:1px solid var(--line)}
@@ -309,9 +316,9 @@ h3{font:700 17px/1.35 "Raleway",system-ui,sans-serif;margin:0;flex:1 1 380px}
 .tech li{font-size:12.5px;line-height:1;padding:6px 9px;border-radius:6px;background:var(--soft);color:var(--muted);border:1px solid var(--line)}
 footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px;display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
 @media (max-width:640px){.cv{padding:24px 16px 40px}.summary .photo{width:42%;margin-left:14px}
-.contacts{flex-direction:column;align-items:center}.contacts li+li::before{content:none}h1{font-size:28px}.date,.badge{white-space:normal}nav{margin-top:20px}}
+.contacts{flex-direction:column;align-items:center}.contacts li+li::before{content:none}h1{font-size:28px}.date,.badge{white-space:normal}}
 @media (max-width:420px){.summary .photo{float:none;display:block;width:200px;margin:4px auto 14px}}
-@media print{nav{display:none}.cv{padding:0}body{font-size:12px}.item{break-inside:avoid}a::after{content:none!important}}
+@media print{.sidebar{display:none}.cv{padding:0}body{font-size:12px}.item{break-inside:avoid}a::after{content:none!important}}
 """
 
 FAVICON = (
@@ -425,7 +432,10 @@ def cmd_render() -> None:
         + f'>{esc(c.get("icon", ""))} {esc(c["label"])}</a></li>'
         for c in contacts
     )
-    nav_html = "".join(f'<a href="#{esc(s["id"])}">{esc(s["title"])}</a>' for s in body_sections)
+    nav_html = "".join(
+        f'<li><a href="#{esc(s["id"])}">{esc(s["title"])}</a></li>'
+        for s in ([summary] if summary else []) + body_sections
+    )
     sections_html = []
     for s in body_sections:
         items = [render_blocks(s["intro"])] if s["intro"] else []
@@ -480,6 +490,8 @@ def cmd_render() -> None:
 <script type="application/ld+json">{json.dumps(json_ld, ensure_ascii=False)}</script>
 </head>
 <body>
+<div class="layout">
+<aside class="sidebar"><nav aria-label="Sections"><ul>{nav_html}</ul></nav></aside>
 <main class="cv">
 <header class="hero">
 <h1>{esc(person['name'])}</h1>
@@ -491,11 +503,24 @@ def cmd_render() -> None:
 {photo_tag}
 {render_blocks(summary['intro']) if summary else ''}
 </section>
-<nav aria-label="Sections">{nav_html}</nav>
 {chr(10).join(sections_html)}
 <footer><span>© {dt.date.today().year} {esc(person['name'])}{' · ' + esc(alt_names) if alt_names else ''}</span>
 <span>Updated <time datetime="{updated}">{updated_human}</time></span></footer>
 </main>
+</div>
+<script>
+(function(){{
+  var links=[].slice.call(document.querySelectorAll('.sidebar a'));
+  var secs=links.map(function(a){{return document.getElementById(a.getAttribute('href').slice(1));}});
+  function update(){{
+    var y=window.scrollY+window.innerHeight*0.3, i=0;
+    secs.forEach(function(s,k){{ if(s && s.offsetTop<=y) i=k; }});
+    if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-2) i=secs.length-1;
+    links.forEach(function(a,k){{ a.classList.toggle('active',k===i); }});
+  }}
+  window.addEventListener('scroll',update,{{passive:true}}); window.addEventListener('resize',update); update();
+}})();
+</script>
 </body>
 </html>
 """
