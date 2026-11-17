@@ -351,6 +351,11 @@ def cmd_render() -> None:
             pw, ph = im.size
 
     title = f"{person['name']} — {person['job_title']}"
+    verify_names = {"google": "google-site-verification", "yandex": "yandex-verification", "bing": "msvalidate.01"}
+    verification = "".join(
+        f'<meta name="{verify_names.get(k, k)}" content="{esc(v)}">\n'
+        for k, v in cfg.get("verification", {}).items() if v
+    )
     description = person.get("description") or (plain(summary["intro"][0]["html"])[:155] if summary else title)
     contacts = cfg.get("contacts", [])
     same_as = [c["url"] for c in contacts if c["url"].startswith("http")]
@@ -424,7 +429,7 @@ def cmd_render() -> None:
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(description)}">
 <meta name="author" content="{esc(person['name'])}">
-<link rel="canonical" href="{url}/">
+{verification}<link rel="canonical" href="{url}/">
 <meta name="theme-color" content="#d9480f">
 <link rel="icon" href="{FAVICON}">
 <meta property="og:type" content="profile">

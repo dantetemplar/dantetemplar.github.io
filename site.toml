@@ -8,6 +8,11 @@ lang = "en"
 # "Anyone with the link -> Viewer". The GOOGLE_DOC_ID repository variable overrides this.
 google_doc_id = "14TtaVGAdt364zGGgyDGgmHYjvddUZ_Ch6A_55Ta4OGo"
 
+# Search engine ownership verification meta tags (Google Search Console, Yandex Webmaster, Bing).
+[verification]
+google = "pTb1qasYWMQec8-StESP4izNvLvCJ9eQD2v6Szu0gDw"
+yandex = ""
+
 [person]
 name = "Ruslan Belkov"
 alternate_names = ["Руслан Бельков", "dantetemplar"]
