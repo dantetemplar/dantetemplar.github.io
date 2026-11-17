@@ -6,7 +6,7 @@ The CV website of Ruslan Belkov. It is generated from a Google Doc and published
 
 The `.github/workflows/deploy.yml` workflow runs every Monday, on every push to `main`, and from the **Actions → Build & deploy CV → Run workflow** button.
 
-1. `python scripts/cv.py fetch` downloads the Google Doc as HTML (`export?format=zip`) into `source/`.
+1. `python scripts/cv.py fetch` downloads the Google Doc as HTML (`export?format=zip`) and `.docx` into `source/`. Text and formatting come from the HTML export. Paragraph spacing comes from the `.docx` export, because the HTML export applies the "Normal text" spacing that Docs itself does not render.
 2. `python scripts/cv.py build` turns the export into structured content `content/cv.json` plus `content/photo.jpg`, then builds `_site/`. The site contains:
    - `index.html`: semantic HTML with meta description, Open Graph, JSON-LD (`ProfilePage` / `Person`) and a dark theme;
    - `robots.txt`;

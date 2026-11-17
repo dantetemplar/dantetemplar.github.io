@@ -74,12 +74,65 @@ def cmd_fetch(_args) -> None:
                 continue
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(zf.read(member))
-    print(f"Fetched Google Doc {doc_id}: {len(data)} bytes")
+    # The .docx export tells which paragraphs set their own spacing (see docx_spacing).
+    req = urllib.request.Request(url.replace("format=zip", "format=docx"), headers={"User-Agent": "cv-site-builder"})
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        docx = resp.read()
+    if docx.startswith(b"PK"):
+        (SOURCE / "doc.docx").write_bytes(docx)
+    print(f"Fetched Google Doc {doc_id}: {len(data)} bytes html, {len(docx)} bytes docx")
+
+
+def norm_text(s: str) -> str:
+    return re.sub(r"\s+", "", s)
+
+
+def docx_spacing(path: Path) -> list[dict]:
+    """Space before/after and line spacing of every paragraph, as Google Docs renders them.
+
+    Docs draws a paragraph with no explicit space before/after with 0, even when the
+    "Normal text" style has some; the HTML export wrongly applies the style value instead.
+    The .docx export only writes w:spacing before/after when the paragraph really sets it.
+    """
+    with zipfile.ZipFile(path) as z:
+        doc = z.read("word/document.xml").decode("utf-8")
+        styles = z.read("word/styles.xml").decode("utf-8")
+
+    def attrs(tag: str) -> dict:
+        return dict(re.findall(r'w:(\w+)="([^"]*)"', tag))
+
+    def line_of(tag: str | None) -> float | None:
+        a = attrs(tag or "")
+        if "line" in a and a.get("lineRule", "auto") == "auto":
+            return int(a["line"]) / 240
+        return None
+
+    defaults = re.search(r"<w:docDefaults>.*?</w:docDefaults>", styles, re.S)
+    sp = re.search(r"<w:spacing\b[^>]*/>", defaults.group(0)) if defaults else None
+    default_line = line_of(sp.group(0) if sp else None) or 1.15
+    style_line = {}
+    for m in re.finditer(r'<w:style\b[^>]*w:styleId="([^"]+)".*?</w:style>', styles, re.S):
+        sp = re.search(r"<w:spacing\b[^>]*/>", m.group(0))
+        if sp and line_of(sp.group(0)):
+            style_line[m.group(1)] = line_of(sp.group(0))
+
+    out = []
+    for p in re.findall(r"<w:p\b[^>]*>.*?</w:p>", doc, re.S):
+        ppr = re.search(r"<w:pPr>(.*?)</w:pPr>", p, re.S)
+        ppr = re.sub(r"<w:(rPr|pPrChange)>.*?</w:\1>", "", ppr.group(1), flags=re.S) if ppr else ""
+        sp = re.search(r"<w:spacing\b[^>]*/>", ppr)
+        a = attrs(sp.group(0)) if sp else {}
+        style = re.search(r'<w:pStyle w:val="([^"]+)"', ppr)
+        line = line_of(sp.group(0) if sp else None) or style_line.get(style.group(1) if style else "Normal", default_line)
+        text = html.unescape("".join(re.findall(r"<w:t(?:\s[^>]*)?>([^<]*)</w:t>", p)))
+        out.append({"key": norm_text(text), "before": int(a.get("before", 0)) / 20,
+                    "after": int(a.get("after", 0)) / 20, "line": line})
+    return [o for o in out if o["key"]]
 
 
 # --------------------------------------------------------------------------- parse
 
-def parse_docs_export(html_path: Path) -> tuple[dict, Path | None]:
+def parse_docs_export(html_path: Path, docx_path: Path | None = None) -> tuple[dict, Path | None]:
     from bs4 import BeautifulSoup, NavigableString, Tag
 
     soup = BeautifulSoup(html_path.read_text(encoding="utf-8"), "html.parser")
@@ -101,10 +154,29 @@ def parse_docs_export(html_path: Path) -> tuple[dict, Path | None]:
         m = re.match(r"(-?[\d.]+)pt", v or "")
         return float(m.group(1)) if m else 0.0
 
+    spacing = docx_spacing(docx_path) if docx_path and docx_path.exists() else []
+    cursor = 0
+
+    def docx_match(el) -> dict | None:
+        """Find this HTML paragraph in the .docx export (same order, matched by text)."""
+        nonlocal cursor
+        key = norm_text(el.get_text())
+        if not key:
+            return None
+        for j in range(cursor, min(cursor + 12, len(spacing))):
+            if spacing[j]["key"] == key:
+                cursor = j + 1
+                return spacing[j]
+        return None
+
     def doc_style(el) -> dict:
         props = dict(rules.get(el.name, {}))
         for c in el.get("class", []):
             props.update(rules.get("." + c, {}))
+        m = docx_match(el)
+        if m:  # trust the .docx for spacing: it matches what Docs renders
+            props["padding-top"], props["padding-bottom"] = f"{m['before']}pt", f"{m['after']}pt"
+            props["line-height"] = f"{m['line']:g}"
         size = pt(props.get("font-size")) or pt(rules.get("p", {}).get("font-size")) or 11.0
         st = {}
         if pt(props.get("padding-top")):
@@ -270,7 +342,7 @@ def cmd_parse() -> None:
     if not htmls:
         print("No source/*.html - keeping committed content/.")
         return
-    content, photo_src = parse_docs_export(htmls[0])
+    content, photo_src = parse_docs_export(htmls[0], SOURCE / "doc.docx")
     CONTENT.mkdir(exist_ok=True)
 
     old = json.loads(CV_JSON.read_text(encoding="utf-8")) if CV_JSON.exists() else {}
@@ -325,20 +397,35 @@ h1{font:800 34px/1.15 "Raleway",system-ui,sans-serif;margin:0 0 6px;letter-spaci
 .summary .photo{float:right;width:260px;height:auto;margin:4px 0 12px 24px;border-radius:6px;background:var(--soft)}
 .summary::after{content:"";display:block;clear:both}
 .layout{display:grid;grid-template-columns:minmax(0,1fr)}
-.sidebar{display:none}
-@media (min-width:960px){.layout{grid-template-columns:190px minmax(0,880px);justify-content:center;column-gap:8px}
-.sidebar{display:block}}
-@media (min-width:1300px){.layout{grid-template-columns:1fr minmax(0,880px) 1fr;column-gap:0}.sidebar{justify-self:end;width:200px}}
-.sidebar nav{position:sticky;top:0;padding:44px 0 24px 20px;max-height:100vh;overflow-y:auto}
-.sidebar ul{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
-.sidebar a{display:block;margin-left:-2px;padding:7px 14px;border-left:2px solid transparent;color:var(--muted);
-font:700 14px/1.3 "Raleway",system-ui,sans-serif}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar a{font:700 14px/1.3 "Raleway",system-ui,sans-serif;color:var(--muted);white-space:nowrap}
 .sidebar a:hover{color:var(--ink);text-decoration:none}
-.sidebar a.active{color:var(--accent);border-left-color:var(--accent)}
+/* desktop: sticky sidebar, first item lined up with the Summary heading (offset set by JS) */
+@media (min-width:960px){.layout{grid-template-columns:190px minmax(0,880px);justify-content:center;column-gap:8px}
+.sidebar nav{position:sticky;top:24px;margin-top:var(--nav-offset,150px);padding:0 0 24px 20px;max-height:calc(100vh - 24px);overflow-y:auto}
+.sidebar ul{border-left:2px solid var(--line)}
+.sidebar a{display:block;margin-left:-2px;padding:7px 14px;border-left:2px solid transparent;white-space:normal}
+.sidebar a.active{color:var(--accent);border-left-color:var(--accent)}}
+@media (min-width:1300px){.layout{grid-template-columns:1fr minmax(0,880px) 1fr;column-gap:0}.sidebar{justify-self:end;width:200px}}
+/* phones / tablets: the same nav as a top bar of chips that slides in once the header is scrolled past */
+@media (max-width:959px){
+.sidebar nav{position:fixed;top:0;left:0;right:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);
+box-shadow:0 2px 10px rgba(0,0,0,.06);transform:translateY(-110%);transition:transform .25s ease}
+body.nav-on .sidebar nav{transform:none}
+.sidebar ul{display:flex;gap:6px;overflow-x:auto;padding:8px 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.sidebar ul::-webkit-scrollbar{display:none}
+.sidebar a{display:block;padding:7px 12px;border-radius:999px;background:var(--soft);font-size:13px}
+.sidebar a.active{background:var(--accent-soft);color:var(--accent)}
+section{scroll-margin-top:58px}}
+.totop{display:none}
+@media (max-width:959px){.totop{display:flex;align-items:center;justify-content:center;position:fixed;right:16px;bottom:18px;z-index:10;
+width:46px;height:46px;border:0;border-radius:50%;background:var(--accent);color:#fff;cursor:pointer;
+box-shadow:0 4px 14px rgba(0,0,0,.2);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s}
+body.totop-on .totop{opacity:1;transform:none;pointer-events:auto}}
+@media (prefers-color-scheme:dark){.totop{color:#0d1b33}}
 section{scroll-margin-top:12px}
-h2{font:800 22px/1.2 "Raleway",system-ui,sans-serif;margin:0;padding-bottom:.15em;display:flex;align-items:center;gap:10px}
+h2{font:800 22px/1.2 "Raleway",system-ui,sans-serif;margin:0;display:flex;align-items:center;gap:10px}
 h2::before{content:"";width:5px;height:.95em;border-radius:3px;background:var(--accent)}
-section+section h2,.summary+section h2{margin-top:.6em}
 .item header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 14px}
 h3{font:700 17px/1.2 "Raleway",system-ui,sans-serif;margin:0;flex:1 1 380px}
 .date{color:var(--muted);font-size:14px;white-space:nowrap}
@@ -359,7 +446,7 @@ h1{font-size:27px}.hero .role{font-size:15.5px;line-height:1.35;margin-bottom:12
 .contacts a{display:inline-block;white-space:nowrap;text-decoration:none;padding:5px 9px;border:1px solid var(--line);border-radius:999px;background:var(--soft)}.date,.badge{white-space:normal}}
 @media (max-width:389px){.contacts{display:grid;grid-template-columns:repeat(2,auto);justify-content:center}}
 @media (max-width:420px){.summary .photo{float:none;display:block;width:200px;margin:4px auto 14px}}
-@media print{.sidebar{display:none}.cv{padding:0}body{font-size:12px}.item{break-inside:avoid}a::after{content:none!important}}
+@media print{.sidebar,.totop{display:none!important}.cv{padding:0}body{font-size:12px}.item{break-inside:avoid}a::after{content:none!important}}
 """
 
 FAVICON = (
@@ -574,17 +661,38 @@ def cmd_render() -> None:
 <span>Updated <time datetime="{updated}">{updated_human}</time></span></footer>
 </main>
 </div>
+<button class="totop" type="button" aria-label="Back to top"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 <script>
 (function(){{
-  var links=[].slice.call(document.querySelectorAll('.sidebar a'));
+  var body=document.body, nav=document.querySelector('.sidebar nav'), aside=document.querySelector('.sidebar'),
+      ul=nav.querySelector('ul'), hero=document.querySelector('.hero'), head=document.getElementById('summary-h');
+  var links=[].slice.call(nav.querySelectorAll('a'));
   var secs=links.map(function(a){{return document.getElementById(a.getAttribute('href').slice(1));}});
+  var mobile=window.matchMedia('(max-width:959px)'), current=-1;
+  function align(){{  /* desktop: put the first sidebar item level with the Summary heading */
+    if(mobile.matches||!head||!links.length) return;
+    var h=head.getBoundingClientRect(), top=aside.getBoundingClientRect().top+window.scrollY;
+    var want=h.top+window.scrollY+h.height/2-(top+links[0].offsetTop+links[0].offsetHeight/2);
+    nav.style.setProperty('--nav-offset',Math.max(0,Math.round(want))+'px');
+  }}
   function update(){{
     var y=window.scrollY+window.innerHeight*0.3, i=0;
     secs.forEach(function(s,k){{ if(s && s.offsetTop<=y) i=k; }});
     if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-2) i=secs.length-1;
-    links.forEach(function(a,k){{ a.classList.toggle('active',k===i); }});
+    if(i!==current){{
+      current=i;
+      links.forEach(function(a,k){{ a.classList.toggle('active',k===i); }});
+      if(mobile.matches){{ var a=links[i]; ul.scrollTo({{left:a.offsetLeft-ul.clientWidth/2+a.offsetWidth/2,behavior:'smooth'}}); }}
+    }}
+    body.classList.toggle('nav-on',mobile.matches && window.scrollY>hero.offsetTop+hero.offsetHeight);
+    body.classList.toggle('totop-on',mobile.matches && window.scrollY>window.innerHeight*1.2);
   }}
-  window.addEventListener('scroll',update,{{passive:true}}); window.addEventListener('resize',update); update();
+  document.querySelector('.totop').addEventListener('click',function(){{ window.scrollTo({{top:0,behavior:'smooth'}}); }});
+  window.addEventListener('scroll',update,{{passive:true}});
+  window.addEventListener('resize',function(){{ align(); current=-1; update(); }});
+  window.addEventListener('load',align);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(align);
+  align(); update();
 }})();
 </script>
 </body>
