@@ -1,0 +1,42 @@
+# Settings for the CV site. Content (summary, experience, ...) comes from the Google Doc;
+# everything here is what the Doc's HTML export does not carry (header, contacts, SEO).
+
+url = "https://cv.belkov.su"
+lang = "en"
+
+# Google Doc to pull the CV from (ID or full link). The doc must be shared as
+# "Anyone with the link -> Viewer". The GOOGLE_DOC_ID repository variable overrides this.
+google_doc_id = "14TtaVGAdt364zGGgyDGgmHYjvddUZ_Ch6A_55Ta4OGo"
+
+[person]
+name = "Ruslan Belkov"
+alternate_names = ["Руслан Бельков", "dantetemplar"]
+job_title = "Forward Deployed Software Engineer · AI · Full-stack"
+# ~150 characters: shown under the link in Google / Yandex results.
+description = "Ruslan Belkov — Forward Deployed Software Engineer (AI, full-stack): Python, TypeScript, RAG and LLM systems, computer vision, robotics."
+email = "ruslan.belckov@yandex.ru"
+alumni_of = ["Innopolis University"]
+knows_about = [
+  "Python", "TypeScript", "FastAPI", "Software Architecture", "Retrieval-Augmented Generation",
+  "Large Language Models", "AI Agents", "Computer Vision", "Robotics", "DevOps",
+]
+
+[[contacts]]
+icon = "💬"
+label = "t.me/dantetemplar"
+url = "https://t.me/dantetemplar"
+
+[[contacts]]
+icon = "👾"
+label = "github.com/dantetemplar"
+url = "https://github.com/dantetemplar"
+
+[[contacts]]
+icon = "📧"
+label = "ruslan.belckov@yandex.ru"
+url = "mailto:ruslan.belckov@yandex.ru"
+
+[[contacts]]
+icon = "👤"
+label = "linkedin.com/in/dantetemplar"
+url = "https://www.linkedin.com/in/dantetemplar"

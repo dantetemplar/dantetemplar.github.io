@@ -1,0 +1,870 @@
+{
+  "sections": [
+    {
+      "title": "Summary",
+      "intro": [
+        {
+          "type": "p",
+          "html": "Full-stack software engineer focused on AI, with 6+ years of experience. Deep expertise in Python, TypeScript, and software architecture, backed by an academic background in Data Science &amp; AI, Cybersecurity, and Robotics."
+        },
+        {
+          "type": "p",
+          "html": "My experience spans web development, production AI systems, industrial computer vision, self-hosted AI deployment, AI-powered cybersecurity, open source, and entrepreneurship."
+        },
+        {
+          "type": "p",
+          "html": "I combine a strong engineering foundation with effective use of AI-native development workflows, leveraging coding agents, custom agent skills, prompt design, diverse model integrations to accelerate delivery while maintaining code and product quality."
+        },
+        {
+          "type": "p",
+          "html": "I could take ownership of the entire product lifecycle: from asking the right questions and clarifying customer needs to design, architecture, implementation, documentation, and DevOps. Comfortable working directly with customers, navigating ambiguity, and shipping in fast-paced environments."
+        },
+        {
+          "type": "p",
+          "html": "Co-founder of a student developer community whose services are used by over 90% of Innopolis University students. Experienced in rapid prototyping, scalable architecture, and competitive programming. Captain of the Tatarstan National Team in Product Programming and holder of the Master of Sports title in programming. An enthusiastic technophile with a passion for innovation, I enjoy tackling complex challenges, exploring emerging technologies, and experimenting with unconventional setups, including Nobara OS, the QGMLWY keyboard layout, and vertical mice."
+        }
+      ],
+      "id": "summary",
+      "is_summary": true,
+      "items": []
+    },
+    {
+      "title": "Education",
+      "intro": [],
+      "items": [
+        {
+          "title_html": "Innopolis University — B.Sc. in Data Science &amp; Artificial Intelligence",
+          "meta": null,
+          "meta_kind": null,
+          "blocks": [
+            {
+              "type": "p",
+              "html": "Bachelor's Degree, Russia – 2022-2026, the entire program was taught in English"
+            },
+            {
+              "type": "p",
+              "html": "Exchange Semester at <strong>Skoltech</strong>, Moscow, Russia – Spring 2025"
+            },
+            {
+              "type": "p",
+              "html": "Winter Artificial Intelligence Program at <strong>Beijing Institute of Technology</strong>, Zhuhai, China – January 2026, was awarded for the outstanding performance with project related to Embedded AI"
+            }
+          ]
+        },
+        {
+          "title_html": "Innopolis University — M.Sc. in Robotics",
+          "meta": null,
+          "meta_kind": null,
+          "blocks": [
+            {
+              "type": "p",
+              "html": "Master's Degree, Russia – 2026-present"
+            }
+          ]
+        }
+      ],
+      "id": "education",
+      "is_summary": false
+    },
+    {
+      "title": "Professional Experience",
+      "intro": [],
+      "items": [
+        {
+          "title_html": "Software Engineer at R77 AI, Contract",
+          "meta": "Jul 2024 - Present",
+          "meta_kind": "date",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "r77.ai",
+                  "url": "https://r77.ai"
+                },
+                {
+                  "label": "t.me/r77_ai",
+                  "url": "https://t.me/r77_ai"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Developed a Retrieval-Augmented Generation (RAG) system for AlfaBank to assist third-party developers in integrating with the bank’s APIs (<a href=\"https://developers.alfabank.ru\">developers.alfabank.ru</a>). The assistant was embedded directly on the website in a chat format, providing real-time guidance and reducing support load. Achieved a 70% exact-answer rate and decreased the average number of daily emails to the RAN team by 30%."
+            },
+            {
+              "type": "p",
+              "html": "Developed a multilingual AI chatbot for a Bureau of Kazakhstan to assist users with statistical forms, information searches, and technical support. The bot processes queries in real time, collects user feedback, and integrates with the contact center's CRM to handle unresolved issues and improve service quality."
+            },
+            {
+              "type": "p",
+              "html": "Developed a Telegram bot for restaurants to automate feedback collection, analysis, and reporting from platforms like Google Maps, Yandex, 2GIS, Instagram, and TripAdvisor. Integrated ChatGPT for sentiment analysis and actionable insights, provided real-time notifications, daily reports, and enabled staff feedback submission."
+            },
+            {
+              "type": "p",
+              "html": "Developed an AI-powered Telegram bot for a Ministry of Kazakhstan, enabling users to ask questions, receive instant responses, and provide feedback. The bot collects consent for data processing, supports follow-up queries, and escalates unresolved issues to human operators."
+            },
+            {
+              "type": "p",
+              "html": "Developed a Telegram bot for a loyalty program in a store specializing in candles. The bot generated PDF files with QR codes formatted for adhesive label printing, which were applied to products. Customers scanned the QR codes to access the bot, earn rewards, and progress through the loyalty program tiers, streamlining the process of engagement and rewards tracking."
+            }
+          ]
+        },
+        {
+          "title_html": "Software Engineer at Innopolis University, Full-time",
+          "meta": "Oct 2024 - Jun 2026",
+          "meta_kind": "date",
+          "blocks": [
+            {
+              "type": "p",
+              "html": "Working as a Software Engineer at Advanced Development Department of Innopolis University developing backend services and APIs in Python and FastAPI for an industrial direct metal deposition system. My responsibilities include building AI and computer vision pipelines for industrial applications, developing algorithms for 3D mesh, STL, and point-cloud processing, implementing slicing and surface deviation analysis, and contributing to robot-controller communication, trajectory planning, and inverse kinematics for a Kawasaki RS080N-based robotic setup."
+            }
+          ]
+        },
+        {
+          "title_html": "Full-stack Software Engineer at Trippy, Contract",
+          "meta": "Summer 2026",
+          "meta_kind": "date",
+          "blocks": [
+            {
+              "type": "p",
+              "html": "Developed a web platform and AI-powered automation workflows for visa application services, including document preparation, monitoring and booking appointment slots at visa application centers, arranging flight and hotel reservations, and processing travel insurance requests."
+            }
+          ]
+        }
+      ],
+      "id": "professional-experience",
+      "is_summary": false
+    },
+    {
+      "title": "Startups & Leadership",
+      "intro": [],
+      "items": [
+        {
+          "title_html": "one-zero-eight",
+          "meta": "Sep 2022 - Present",
+          "meta_kind": "date",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "Telegram: @one_zero_eight",
+                  "url": "https://t.me/one_zero_eight"
+                },
+                {
+                  "label": "GitHub",
+                  "url": "https://github.com/one-zero-eight"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "I am a co-founder of <em>one-zero-eight</em>, a student community at Innopolis University (IU). Our mission is to create the perfect environment for student life. We develop projects, participate in competitions, host events, and produce podcasts. Over 90% of students use our services. I lead a team of 20+ members, conduct interviews for new recruits, mentor them, also I design and architect solutions, and contribute by building bots and backend systems. Carried out external communications with various departments."
+            }
+          ]
+        },
+        {
+          "title_html": "“PromOblako” digital platform",
+          "meta": "Dec 2025 - Present",
+          "meta_kind": "date",
+          "blocks": [
+            {
+              "type": "p",
+              "html": "Co-creating PromOblako — a production monitoring platform with a long-term vision of digital twins for industrial facilities. We build edge devices that count products on conveyor lines, send telemetry to the cloud, and visualize production metrics as charts and tables. My contributions include product architecture, backend and cloud infrastructure, and data processing pipelines."
+            }
+          ]
+        },
+        {
+          "title_html": "ООО \"РАСПИСАНИЕ БЕЗ ХЛОПОТ\"",
+          "meta": "Sep 2024 - Jan 2026",
+          "meta_kind": "date",
+          "blocks": [
+            {
+              "type": "p",
+              "html": "I received a \"Student Startup\" grant of 1 million rubles to develop a startup focused on building a technological ecosystem for aggregating, managing, and visualizing schedules and events in universities and schools. Currently, the project is in the stage of establishing its legal framework and drafting a business plan. We have also made significant progress in automating scheduling processes in educational institutions to enhance efficiency and improve the user experience for students and staff."
+            }
+          ]
+        },
+        {
+          "title_html": "Overlord Systems",
+          "meta": "Nov 2023 - Nov 2025",
+          "meta_kind": "date",
+          "blocks": [
+            {
+              "type": "p",
+              "html": "I am a co-creator of a mobile information system for golf clubs. It helps golf course operators manage their fleet of golf carts and enhances the playing experience for golfers. The system is currently successfully operating in golf clubs across Russia. My contributions include backend architecture and development, as well as mobile application implementation. Additionally, I have actively participated in negotiations with golf clubs and delivered product demonstrations to potential partners and customers."
+            }
+          ]
+        }
+      ],
+      "id": "startups-leadership",
+      "is_summary": false
+    },
+    {
+      "title": "Open-Source Projects",
+      "intro": [],
+      "items": [
+        {
+          "title_html": "<a href=\"https://github.com/dantetemplar/pdf-extraction-agenda\">pdf-extraction-agenda</a>",
+          "meta": null,
+          "meta_kind": null,
+          "blocks": [
+            {
+              "type": "p",
+              "html": "Curated research repository comparing PDF/OCR-to-Markdown extraction pipelines, including open-source tools, proprietary APIs, specialized VLMs, and general multimodal models. Aggregates benchmark results, capabilities, licenses, API availability, and deployment trade-offs to support technical evaluation of document processing stacks."
+            }
+          ]
+        },
+        {
+          "title_html": "<a href=\"https://github.com/dantetemplar/meow-embed\">meow-embed</a>",
+          "meta": null,
+          "meta_kind": null,
+          "blocks": [
+            {
+              "type": "p",
+              "html": "FastAPI-based embedding server and Python client for retrieval systems. Provides dense, sparse, and BGE-M3 embeddings in a single request with efficient transport via base64-encoded vectors and gzip-compressed requests/responses. Also supports client-side caching and integration with rerankers/CrossEncoders."
+            }
+          ]
+        },
+        {
+          "title_html": "<a href=\"https://github.com/dantetemplar/lee-label\">lee-label</a>",
+          "meta": null,
+          "meta_kind": null,
+          "blocks": [
+            {
+              "type": "p",
+              "html": "Local-first, cross-platform desktop application for labeling computer vision datasets without accounts, cloud uploads, or external storage. Built with Electron, SolidJS, and SQLite, it provides fast image and mask rendering through preloading and WebGL shaders, streamlined keyboard-driven workflows, and AI-assisted annotation using SAM-HQ, SAM 3, and SAM 2.1."
+            }
+          ]
+        },
+        {
+          "title_html": "<a href=\"https://github.com/one-zero-eight/fastapi-template\">fastapi-template</a>",
+          "meta": null,
+          "meta_kind": null,
+          "blocks": [
+            {
+              "type": "p",
+              "html": "CookieCutter-based starter for building FastAPI applications with uv. It supports PostgreSQL with SQLAlchemy or MongoDB with Beanie for databases, integrates Ruff for formatting and linting, and enables deployment with Docker and GitHub Actions. It also includes TUI for adding new routers and generating boilerplate code."
+            }
+          ]
+        },
+        {
+          "title_html": "<a href=\"https://github.com/dantetemplar/fastapi-derive-responses\">fastapi-derive-responses</a>",
+          "meta": null,
+          "meta_kind": null,
+          "blocks": [
+            {
+              "type": "p",
+              "html": "Python library that extends FastAPI by automatically generating OpenAPI responses based on your endpoint's source code. This plugin helps you reduce boilerplate code by deriving response statuses and descriptions directly from your code."
+            }
+          ]
+        },
+        {
+          "title_html": "<a href=\"https://github.com/dantetemplar/fastapi-swagger\">fastapi-swagger</a>",
+          "meta": null,
+          "meta_kind": null,
+          "blocks": [
+            {
+              "type": "p",
+              "html": "Plugin that patches the FastAPI app to include a latest Swagger UI distribution. Also, it works locally and does not depend on the @tiangolo domains and CDNs. It updates automatically on each Swagger UI release."
+            }
+          ]
+        },
+        {
+          "title_html": "<a href=\"https://github.com/dantetemplar/fastapi-mock\">fastapi-mock</a>",
+          "meta": null,
+          "meta_kind": null,
+          "blocks": [
+            {
+              "type": "p",
+              "html": "A utility for FastAPI that simplifies the creation of mock endpoints during development. It allows returning generated examples instead of HTTP 500. Examples are based on response models. Advanced features include JSON schema examples, field examples and defaults, and support for custom example providers such as Faker."
+            }
+          ]
+        }
+      ],
+      "id": "open-source-projects",
+      "is_summary": false
+    },
+    {
+      "title": "Hackathons",
+      "intro": [],
+      "items": [
+        {
+          "title_html": "Russian Championship in the discipline “Robot Programming”",
+          "meta": "2025 Winner",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "🏆 Champions at the Russian Championship in Robotics",
+                  "url": "https://t.me/one_zero_eight/243"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Worked on programming an educational robotic manipulator Promobot mEDU: implemented motion programs and task logic, tuned trajectories and movements, and validated execution on the real hardware during the competition."
+            }
+          ]
+        },
+        {
+          "title_html": "Tenderhack Kazan",
+          "meta": "2025 Winner",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "Big Win at the Tender Hack!💎",
+                  "url": "https://t.me/one_zero_eight/239"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Built a product grouping / aggregation tool for a supplier portal: automatic aggregation of similar SKUs (СТЕ), manual group management, and sorting by key attributes to make product organization faster and clearer. Implemented ML + vector search approach: embeddings, clustering with AgglomerativeClustering, metrics learning (ITML), semantic search."
+            },
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "GitHub",
+                  "url": "https://github.com/one-zero-eight/hackathon-tenderhack"
+                }
+              ]
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "FastAPI",
+                "PostgreSQL",
+                "Scikit-learn",
+                "Qdrant",
+                "Docker Compose"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "Rosneft Student Hackathon",
+          "meta": "2025, 4th place",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "RN Digital Leaderboard (place 4)",
+                  "url": "https://events.rn.digital/hack/it2025vuz/leaderboard/0"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Developed a computer vision model to automatically segment map regions with different oil-well placement patterns (48-hour online hackathon). I was disqualified because of ultralytics licensing issues, so now I am wondering about my own MIT library for YOLO models."
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "ultralytics YOLO",
+                "Sliced Aided Hyper Inference"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "Archipelago 2025: Processing datasets from drones",
+          "meta": "2025 Prize Winner",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "🥈 2nd place on Archipelago 2025",
+                  "url": "https://t.me/one_zero_eight/184"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Developing computer vision pipeline with YOLOv8 for detecting lost people on large UAV images. I also searched for additional dataset from open and closed sources, and collected the largest open source dataset on this problem. I was awarded by the RAIS of the Republic of Tatarstan for my contribution to the development of unmanned vehicles."
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "ultralytics",
+                "s3",
+                "numpy",
+                "Pillow",
+                "scikit-learn",
+                "httpx"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "Technological competition “Autonomous search. On Board\"",
+          "meta": "2025 Finalist",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "✈️ Финальные испытания «Автономный поиск. На борту» завершены!",
+                  "url": "https://t.me/vision_soft1/78"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Development of a remote computer vision pipeline for the task of Search &amp; Rescue and running it on a real UAV plane in the field."
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "YOLO ultarlytics",
+                "SAHI",
+                "TensorRT",
+                "NVIDIA Jetson"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "Russian Championship in the discipline “Product Programming”",
+          "meta": "2024 Winner",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "🏆 Russian Federation Championship: 300,000 RUB and Master of Sports Title for First Place!",
+                  "url": "https://t.me/one_zero_eight/131"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Backend development of a search and viewing system for sports events based on the Unified Calendar Plan of the Russian Ministry of Sports, parsing of pdfs (2 days)."
+            },
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "GitHub",
+                  "url": "https://github.com/one-zero-eight/hackathon-calendars"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Backend development of a platform designed for managing sports competitions in the field of competitive programming and providing informational support to sports federations (2 days)."
+            },
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "GitHub",
+                  "url": "https://github.com/one-zero-eight/hackathon-champ"
+                }
+              ]
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "FastAPI",
+                "MongoDB",
+                "Beanie",
+                "pandas",
+                "pdfplumber",
+                "pypdf",
+                "ICalendar"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "Tatarstan Championship in the discipline “Product Programming”",
+          "meta": "2024 Winner",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "Tatarstan Championship: First Place! 🏆",
+                  "url": "https://t.me/one_zero_eight/129"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Backend development of a platform for conducting surveys targeting respondents in the HR field (2 days)."
+            },
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "GitHub",
+                  "url": "https://github.com/one-zero-eight/hackathon-forms"
+                }
+              ]
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "FastAPI",
+                "MongoDB",
+                "Beanie"
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Frontend &amp; Backend development of a browser-based Mahjong game with a car thematics (2 days)."
+            },
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "GitHub",
+                  "url": "https://github.com/one-zero-eight/hackathon-mahjong"
+                }
+              ]
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "React",
+                "Vite",
+                "shadcn",
+                "FastAPI",
+                "MongoDB",
+                "Beanie"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "INNOGLOBALHACK: MTS: AIDocProcessing track",
+          "meta": "2024 Winner",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "🏆 one-zero-eight won INNOGLOBALHACK 2024 🏆",
+                  "url": "https://t.me/one_zero_eight/125"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Development of an intelligent RAG system based on scans of financial documents with interactive charts (3 days)."
+            },
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "GitHub",
+                  "url": "https://github.com/one-zero-eight/hackathon-aidoc"
+                }
+              ]
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "RAG Llama 3.2 & Chroma",
+                "Open WebUI",
+                "TableTransformer"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "«Education Code!»: AbiTour",
+          "meta": "2024 Winner",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "Студенты Университета Иннополис победили во Всероссийских соревнованиях по спортивному программированию «Код образования»",
+                  "url": "https://t.me/fsp_RT/42"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Backend development a system for applicants with 3D tours of universities, anonymous chat, reviews and information about universities (2 days). Speaker on the presentation of the solution."
+            },
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "GitHub",
+                  "url": "https://github.com/one-zero-eight/hackathon-abitour"
+                }
+              ]
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "FastAPI",
+                "MongoDB",
+                "Beanie"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "Technological competition “Autonomous search. Soft\"",
+          "meta": "2024 Finalist",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "Автономный поиск",
+                  "url": "https://vision.upgreat.one"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Development of a remote computer vision pipeline for the task of Search &amp; Rescue (70 days)"
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "YOLO ultarlytics",
+                "SAHI",
+                "TensorRT",
+                "NVIDIA Jetson"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "E-CUP: Everything as Code",
+          "meta": "2024 Participant",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "E-CUP: Everything as Code",
+                  "url": "https://ozon.tech/blog/332-e-cup-everything-as-code-ml-sorevnovanie-s-real-nymi-zadachami-ozon-tech"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Development of an ML model that will determine whether products are duplicates based on names, attributes and images (30 days)."
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "polars",
+                "catboost"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "AgroCode Hack",
+          "meta": "2023 Participant",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "Мобильное приложение механизатора",
+                  "url": "https://rshbdigital.ru/agrocode-hack/agrocode-hack2023-task1"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Development of application for a farm equipment operator to produce and complete tasks, report problems, and view salary information (2 days)."
+            },
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "Demo Video",
+                  "url": "https://youtu.be/ZrLWtgFrIVY"
+                },
+                {
+                  "label": "GitHub",
+                  "url": "https://github.com/orgs/one-zero-eight/repositories?q=moperator"
+                }
+              ]
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "FastAPI",
+                "PostgreSQL",
+                "SQLAlchemy",
+                "Kotlin",
+                "NFC"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "Russian Championship in the discipline “Product Programming”",
+          "meta": "2023 Finalist",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "Команда университета заняла 4 место в дисциплине «Продуктовое программирование» и получили звания КМС",
+                  "url": "https://t.me/fsp_RT/28"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Backend development of system for monitoring PostgreSQL Database in Telegram Bot (2 days)."
+            },
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "GitHub",
+                  "url": "https://github.com/one-zero-eight/hackathon-monitor-back"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Backend development of a digital solution for testing users on basic cybersecurity knowledge (2 days)."
+            },
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "GitHub",
+                  "url": "https://github.com/one-zero-eight/hackathon-cyberlight-new-back"
+                }
+              ]
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "FastAPI",
+                "PostgreSQL",
+                "SQLAlchemy",
+                "Grafana",
+                "Prometheus"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "NATIONAL TECHNOLOGICAL OLYMPIAD: Unmanned Aircraft Systems",
+          "meta": "2022 Winner",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "Руслан Бельков, призер профиля «Беспилотные авиационные системы»",
+                  "url": "https://ntcontest.ru/about/news/Sekrety-uspekha-Ruslan-Belkov-prizer-profilya-Bespilotnye-aviatsionnye-sistemy/?sphrase_id=22087"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Image recognition, Coordinate systems transformations, Autopilot for virtual planes, Standard machine learning methods."
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "Python",
+                "NumPy",
+                "OpenCV"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "ISS Hack: Firearms detection",
+          "meta": "2022 Participant",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "ISS Hack",
+                  "url": "https://codenrock.com/contests/isshack"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Development of a firearms detector based on CCTV Cameras."
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "Python",
+                "Torch",
+                "OpenCV"
+              ]
+            }
+          ]
+        },
+        {
+          "title_html": "Agrohackathon: Classification of apple tree diseases",
+          "meta": "2020 Participant",
+          "meta_kind": "result",
+          "blocks": [
+            {
+              "type": "links",
+              "links": [
+                {
+                  "label": "Нейросеть для обнаружения заболеваний листьев яблони по фотографии | Хакатон задача №5 - ИПУ РАН",
+                  "url": "https://2020.agro-code.ru/task/apple"
+                }
+              ]
+            },
+            {
+              "type": "p",
+              "html": "Classification of apple tree diseases by photo."
+            },
+            {
+              "type": "tech",
+              "tags": [
+                "Python",
+                "Torch",
+                "OpenCV"
+              ]
+            }
+          ]
+        }
+      ],
+      "id": "hackathons",
+      "is_summary": false
+    }
+  ],
+  "photo_sha256": "4f607ec01421957e3fe9ebc4bdb0432f107064f6cc6164d605cb83310a8a6b39",
+  "updated": "2026-11-17"
+}

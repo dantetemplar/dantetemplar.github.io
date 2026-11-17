@@ -1,0 +1,2 @@
+beautifulsoup4>=4.12,<5
+pillow>=10,<14
