@@ -516,6 +516,57 @@ def plain(html_str: str) -> str:
     return html.unescape(re.sub(r"<[^>]+>", "", html_str))
 
 
+FONTS = ROOT / "assets" / "fonts"
+
+
+def make_og_image(person: dict, host: str, out: Path) -> tuple[int, int]:
+    """1200x630 link-preview card (Telegram, Slack, LinkedIn, X...): photo + name + role."""
+    from PIL import Image, ImageDraw, ImageFont, ImageOps
+
+    W, H, PAD, PHOTO_W = 1200, 630, 72, 430
+    ink, muted, accent = (29, 29, 31), (95, 99, 104), (17, 85, 204)
+    img = Image.new("RGB", (W, H), "white")
+    if PHOTO.exists():
+        with Image.open(PHOTO) as ph:
+            img.paste(ImageOps.fit(ph.convert("RGB"), (PHOTO_W, H), centering=(0.5, 0.35)), (W - PHOTO_W, 0))
+    d = ImageDraw.Draw(img)
+    font = lambda name, size: ImageFont.truetype(str(FONTS / f"{name}.ttf"), size)
+    text_w = W - PHOTO_W - 2 * PAD
+
+    def wrap(text: str, f, sep=" ") -> list[str]:
+        lines, cur = [], ""
+        for word in text.split(sep):
+            cand = f"{cur}{sep}{word}" if cur else word
+            if f.getlength(cand) <= text_w or not cur:
+                cur = cand
+            else:
+                lines.append(cur + (sep.rstrip() if sep.strip() else ""))
+                cur = word
+        return lines + [cur]
+
+    size = 70
+    while font("Raleway-bold", size).getlength(person["name"].upper()) > text_w and size > 40:
+        size -= 2
+    y = PAD + 10
+    d.text((PAD, y), person["name"].upper(), font=font("Raleway-bold", size), fill=ink)
+    y += size + 22
+    d.rounded_rectangle((PAD, y, PAD + 90, y + 8), radius=4, fill=accent)
+    y += 40
+    f_role = font("Lato-bold", 34)
+    for line in wrap(person["job_title"], f_role, sep=" · ")[:3]:
+        d.text((PAD, y), line, font=f_role, fill=ink)
+        y += 46
+    y += 18
+    tagline = person.get("og_tagline") or " · ".join(person.get("knows_about", [])[:5])
+    f_tag = font("Lato-regular", 27)
+    for line in wrap(tagline, f_tag, sep=" · ")[:3]:
+        d.text((PAD, y), line, font=f_tag, fill=muted)
+        y += 38
+    d.text((PAD, H - PAD - 34), host, font=font("Lato-bold", 32), fill=accent)
+    img.save(out, "PNG", optimize=True)
+    return W, H
+
+
 def cmd_render() -> None:
     cfg = load_config()
     person, url = cfg["person"], cfg["url"].rstrip("/")
@@ -537,6 +588,7 @@ def cmd_render() -> None:
             pw, ph = im.size
 
     title = f"{person['name']} — {person['job_title']}"
+    og_w, og_h = make_og_image(person, urlparse(url).hostname or url, SITE / "og.png")
     verify_names = {"google": "google-site-verification", "yandex": "yandex-verification", "bing": "msvalidate.01"}
     verification = "".join(
         f'<meta name="{verify_names.get(k, k)}" content="{esc(v)}">\n'
@@ -601,10 +653,11 @@ def cmd_render() -> None:
         )
 
     og_image = (
-        f'<meta property="og:image" content="{url}/photo.jpg">\n'
-        f'<meta property="og:image:width" content="{pw}">\n<meta property="og:image:height" content="{ph}">\n'
-        f'<meta property="og:image:alt" content="{esc(person["name"])}">\n'
-        if has_photo else ""
+        f'<meta property="og:image" content="{url}/og.png">\n'
+        f'<meta property="og:image:type" content="image/png">\n'
+        f'<meta property="og:image:width" content="{og_w}">\n<meta property="og:image:height" content="{og_h}">\n'
+        f'<meta property="og:image:alt" content="{esc(title)}">\n'
+        f'<meta name="twitter:image" content="{url}/og.png">\n'
     )
     photo_tag = (
         f'<img class="photo" src="photo.jpg" width="{pw}" height="{ph}" alt="{esc(person["name"])}" fetchpriority="high">'
@@ -633,7 +686,8 @@ def cmd_render() -> None:
 <meta property="og:site_name" content="{esc(person['name'])}">
 <meta property="profile:first_name" content="{esc(person['name'].split()[0])}">
 <meta property="profile:last_name" content="{esc(person['name'].split()[-1])}">
-{og_image}<meta name="twitter:card" content="summary">
+<meta property="og:locale" content="en_US">
+{og_image}<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{esc(title)}">
 <meta name="twitter:description" content="{esc(description)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
